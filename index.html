@@ -26,7 +26,39 @@
             });
         }
         
-        // นำโค้ด JavaScript ที่เชื่อมต่อ Firebase เดิม มาวางต่อตรงนี้ได้เลยครับ
+        // 3. ตั้งค่า Firebase (นำรหัสจากหน้า Project Settings ใน Firebase Console มาวาง)
+        const firebaseConfig = {
+            apiKey: "ใส่_API_KEY_จริงที่นี่",
+            authDomain: "admin-court-app.firebaseapp.com",
+            projectId: "admin-court-app",
+            storageBucket: "admin-court-app.appspot.com",
+            messagingSenderId: "ใส่_ID_จริง",
+            appId: "ใส่_APP_ID_จริง"
+        };
+        
+        // เริ่มการเชื่อมต่อระบบฐานข้อมูล
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // 4. ดึงข้อมูลจากฐานข้อมูลมาวาดบนหน้าจอ
+        function loadCases() {
+            db.collection("daily_cases").onSnapshot((querySnapshot) => {
+                const container = document.getElementById('daily-cases');
+                container.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    container.innerHTML += `
+                        <div class="case-card clearfix">
+                            <div class="case-title">${data.title}</div>
+                            <div class="case-summary">${data.summary}</div>
+                            <button class="save-btn" onclick="saveCase('${doc.id}')">บันทึกคดี</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.onload = loadCases;
     </script>
 </body>
 </html>
