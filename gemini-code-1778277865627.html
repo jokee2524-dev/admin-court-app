@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สรุปคดีศาลปกครอง</title>
+    
+    <!-- 1. โค้ดเชื่อมโยงไฟล์ manifest เพื่อทำ PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a365d">
+
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- นำโค้ด <style> หรือ CSS เดิมมาวางต่อตรงนี้ได้เลยครับ -->
+</head>
+<body>
+    <!-- นำโค้ดโครงสร้าง <body> หรือหน้าตาเว็บเดิมมาวางตรงนี้ได้เลยครับ -->
+    
+    <script>
+        // 2. โค้ดลงทะเบียน Service Worker สำหรับ PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('ระบบ PWA พร้อมใช้งานบนแท็บเล็ตแล้ว!'))
+                    .catch(err => console.log('พบปัญหาการลงทะเบียน PWA: ', err));
+            });
+        }
+        
+        // นำโค้ด JavaScript ที่เชื่อมต่อ Firebase เดิม มาวางต่อตรงนี้ได้เลยครับ
+    </script>
+</body>
+</html>
