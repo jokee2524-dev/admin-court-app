@@ -4,61 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สรุปคดีศาลปกครอง</title>
-    
-    <!-- 1. โค้ดเชื่อมโยงไฟล์ manifest เพื่อทำ PWA -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a365d">
-
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
-    
-    <!-- นำโค้ด <style> หรือ CSS เดิมมาวางต่อตรงนี้ได้เลยครับ -->
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f4f8; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .case-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid #1a365d; }
+        .case-title { font-size: 18px; font-weight: 600; color: #1a365d; margin-bottom: 10px; }
+        .case-summary { font-size: 16px; color: #4a5568; line-height: 1.6; }
+    </style>
 </head>
 <body>
-    <!-- นำโค้ดโครงสร้าง <body> หรือหน้าตาเว็บเดิมมาวางตรงนี้ได้เลยครับ -->
-    
+    <div class="container">
+        <h1 style="text-align: center; color: #1a365d;">📚 สรุปคดีประจำวัน</h1>
+        <div id="daily-cases">
+            <p style="text-align: center;">กำลังโหลดข้อมูลจากฐานข้อมูล...</p>
+        </div>
+    </div>
+
+    <!-- โหลด Firebase SDK เวอร์ชัน 8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <script>
-        // 2. โค้ดลงทะเบียน Service Worker สำหรับ PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('ระบบ PWA พร้อมใช้งานบนแท็บเล็ตแล้ว!'))
-                    .catch(err => console.log('พบปัญหาการลงทะเบียน PWA: ', err));
-            });
-        }
-        
-// 3. ตั้งค่า Firebase (นนท์คัดลอกมาจากรูปภาพที่พี่ส่งมาให้แล้วครับ)
+        // ตั้งค่าการเชื่อมต่อ (คัดลอกมาจากค่าจริงของพี่โจ๊ก)
         const firebaseConfig = {
             apiKey: "AIzaSyCgN41RGMQh3MDMowf1xaptvluza8tLCmw",
             authDomain: "admin-court-app.firebaseapp.com",
             projectId: "admin-court-app",
             storageBucket: "admin-court-app.firebasestorage.app",
             messagingSenderId: "197411042736",
-            appId: "1:197411042736:web:3f34dd0853561e96c49275",
-            measurementId: "G-T8D07864GX"
+            appId: "1:197411042736:web:3f34dd0853561e96c49275"
         };
-        
-        // เริ่มการเชื่อมต่อระบบฐานข้อมูล
-        firebase.initializeApp(firebaseConfig);
+
+        // เริ่มต้น Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.firestore();
 
-        // 4. ดึงข้อมูลจากฐานข้อมูลมาวาดบนหน้าจอ
+        // ฟังก์ชันดึงข้อมูลมาแสดงผล
         function loadCases() {
+            const container = document.getElementById('daily-cases');
+            
+            // ดึงข้อมูลจากคอลเลกชัน daily_cases
             db.collection("daily_cases").onSnapshot((querySnapshot) => {
-                const container = document.getElementById('daily-cases');
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p style="text-align: center;">ยังไม่มีข้อมูลคดีในระบบ (ตรวจสอบชื่อ Collection: daily_cases)</p>';
+                    return;
+                }
+
                 container.innerHTML = '';
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    container.innerHTML += `
-                        <div class="case-card clearfix">
-                            <div class="case-title">${data.title}</div>
-                            <div class="case-summary">${data.summary}</div>
-                            <button class="save-btn" onclick="saveCase('${doc.id}')">บันทึกคดี</button>
-                        </div>
-                    `;
+                    // ตรวจสอบว่ามีข้อมูลครบตามที่ระบุ (title และ summary)
+                    if (data.title && data.summary) {
+                        container.innerHTML += `
+                            <div class="case-card">
+                                <div class="case-title">${data.title}</div>
+                                <div class="case-summary">${data.summary}</div>
+                            </div>
+                        `;
+                    }
                 });
+            }, (error) => {
+                container.innerHTML = `<p style="text-align: center; color: red;">เกิดข้อผิดพลาด: ${error.message}</p>`;
             });
         }
 
+        // สั่งให้ทำงานเมื่อโหลดหน้าเว็บเสร็จ
         window.onload = loadCases;
     </script>
 </body>
