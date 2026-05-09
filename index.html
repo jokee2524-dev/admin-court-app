@@ -58,21 +58,25 @@
                     const data = doc.data();
                     // ตรวจสอบว่ามีข้อมูลครบตามที่ระบุ (title และ summary)
                     if (data.title && data.summary) {
-                        container.innerHTML += `
-                            <div class="case-card">
-                                <div class="case-title">${data.title}</div>
-                                <div class="case-summary">${data.summary}</div>
-                            </div>
-                        `;
-                    }
-                });
-            }, (error) => {
-                container.innerHTML = `<p style="text-align: center; color: red;">เกิดข้อผิดพลาด: ${error.message}</p>`;
-            });
-        }
+// แก้ไขส่วนการวาดการ์ดคดีให้มีปุ่มบันทึก
+container.innerHTML += `
+    <div class="case-card">
+        <div class="case-title">${data.title}</div>
+        <div class="case-summary">${data.summary}</div>
+        <button onclick="saveToLocal('${doc.id}', '${data.title}')" style="background: #38b2ac; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+            📌 บันทึกไว้อ่าน
+        </button>
+    </div>
+`;
 
-        // สั่งให้ทำงานเมื่อโหลดหน้าเว็บเสร็จ
-        window.onload = loadCases;
-    </script>
-</body>
-</html>
+// เพิ่มฟังก์ชันบันทึกลงเครื่อง (LocalStorage)
+function saveToLocal(id, title) {
+    let saved = JSON.parse(localStorage.getItem('mySavedCases')) || [];
+    if (!saved.some(item => item.id === id)) {
+        saved.push({id, title});
+        localStorage.setItem('mySavedCases', JSON.stringify(saved));
+        alert('บันทึกคดี "' + title + '" เรียบร้อยแล้วครับพี่โจ๊ก!');
+    } else {
+        alert('คดีนี้ถูกบันทึกไว้แล้วครับ');
+    }
+}
